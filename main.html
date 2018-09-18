@@ -1,48 +1,33 @@
 
 <!DOCTYPE HTML>
 <html lang="en-US">
-  <head>
+<head>
     <meta charset="UTF-8">
-    <title>car.html</title>
+    <title>redBall.html</title>
     <script type="text/javascript"
-            src = "../simpleGame_1_0.js"></script>
+            src = "simpleGame.js"></script>
     <script type="text/javascript">
+    //simple game with a single moving ball
     var scene;
-    var car;
+    var ball;
 
     function init(){
-        scene = new Scene();
-        car = new Sprite(scene, "car.png", 50, 30);
-        car.setAngle(270);
-        car.setSpeed(0);
-        scene.start();
+      scene = new Scene();
+      ball = new Sprite(scene, "redBall.png", 50, 50);
+      ball.setMoveAngle(180);
+      ball.setSpeed(3);
+
+      scene.start();
     } // end init
 
     function update(){
-        scene.clear();
-        //check keys
-
-        if (keysDown[K_LEFT]){
-            car.changeAngleBy(-5);
-        } // end if
-
-        if (keysDown[K_RIGHT]){
-            car.changeAngleBy(5);
-        } // end if
-
-        if (keysDown[K_UP]){
-            car.changeSpeedBy(1);
-        } // end if
-
-        if (keysDown[K_DOWN]){
-            car.changeSpeedBy(-1);
-        } // end if
-
-        car.update();
+      scene.clear();
+      ball.update();
     } // end update
+
     </script>
-  </head>
-  <body onload = "init()">
-    <h1>Drive the car!</h1>
-  </body>
+</head>
+<body onload = "init()">
+
+</body>
 </html>
