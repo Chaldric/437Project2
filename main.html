@@ -10,13 +10,14 @@
 
     var scene;
     var ship;
+    var missile;
 
     function Ship(){
       tempShip = new Sprite(scene, "Images/Titan_Kanadaj.png", 65, 50);
       tempShip.setImgAngle(0);
       tempShip.setMoveAngle(0);
       tempShip.setSpeed(0);
-      //tempShip.missle = new Missle();
+
       tempShip.checkKeys = function(){
         if (keysDown[K_LEFT] || keysDown[K_A]){
           this.changeImgAngleBy(-5);
@@ -37,28 +38,32 @@
           this.addVector(this.getImgAngle() + 90, .1);
         }
         if (keysDown[K_SPACE]){
-          //this.missile.fire();
+          missile.fire();
         }
       } //end checkKeys
+
       return tempShip;
     } //end Ship class
 
-    function Missle(){
-      tempMissile = new Sprite(game, "Images/redBall.png", 30, 20);
+    function Missile(){
+      tempMissile = new Sprite(scene, "Images/redBall.png", 30, 20);
+      tempMissile.setSpeed(0);
       tempMissile.hide();
 
       tempMissile.fire = function(){
         this.show();
-        //this.setPosition(car.x, car.y);
-        //this.setAngle(car.getImgAngle());
+        this.setSpeed(15);
+        this.setBoundAction(DIE);
+        this.setPosition(ship.x, ship.y);
+        this.setAngle(ship.getImgAngle());
       } //end fire function
       return tempMissile;
-    } //end Missle class
+    } //end Missile class
 
     function init(){
       scene = new Scene();
       ship = new Ship();
-
+      missile = new Missile();
       scene.start();
     } //end init
 
@@ -66,6 +71,7 @@
       scene.clear();
       ship.checkKeys();
       ship.update();
+      missile.update();
     } //end update
 
     </script>
