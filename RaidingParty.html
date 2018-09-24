@@ -11,6 +11,7 @@
     var scene;
     var pDragon;
     var ground;
+    var timer;
 
     function Dragon(){
       tempDragon = new Sprite(scene, "Images/BDragon.png", 60, 60);
@@ -42,6 +43,7 @@
             if (this.mainJump == 0){
               this.addVector(0, this.jumpHeight);
               this.mainJump = 1;
+
             } /* else if (this.secondaryJump == 0){
               this.addVector(0, this.jumpDoubleHeight);
               this.secondaryJump = 1;
@@ -71,6 +73,7 @@
     } //end Dragon class
 
     function init(){
+      //timer = new Time();
       scene = new Scene();
       pDragon = new Dragon();
       ground = 500;
