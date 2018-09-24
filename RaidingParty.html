@@ -15,10 +15,10 @@
 
     function Dragon(){
       tempDragon = new Sprite(scene, "Images/BDragon.png", 60, 60);
-      //tempDragon.setImgAngle(90);
-      //tempDragon.setMoveAngle(90);
+      tempDragon.currentTime = 0;
+      tempDragon.jumpDelay = 500;
       tempDragon.maxHorizontalSpeed = 5;
-      tempDragon.jumpHeight = 6;
+      tempDragon.jumpHeight = 10;
       tempDragon.jumpDoubleHeight = 5;
       tempDragon.mainJump = 0;
       tempDragon.secondaryJump = 0;
@@ -41,6 +41,7 @@
         }
         if (keysDown[K_UP]){
             if (this.mainJump == 0){
+              this.setDY(0);
               this.addVector(0, this.jumpHeight);
               this.mainJump = 1;
 
@@ -83,6 +84,7 @@
 
     function update(){
       scene.clear();
+      updateScore();
 
       pDragon.checkKeys();
       pDragon.checkGravity();
@@ -90,9 +92,16 @@
       pDragon.update();
     } //end update
 
+    function updateScore(){
+    //update the scoreboard
+      //scoreBoard.innerHTML = "PosX: " + pDragon.x + ". PosY: " + pDragon.y + ". VelX: " + pDragon.dx + ". VelY: " + pDragon.dy;
+      scoreBoard.innerHTML = "PosY: " + pDragon.y + ". VelY: " + pDragon.dy;
+    } // end updateScore
+
     </script>
   </head>
   <body onload = "init()">
+    <div id = "scoreBoard">PosX: 0</div>
 
   </body>
 </html>
