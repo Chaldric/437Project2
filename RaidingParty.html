@@ -9,20 +9,22 @@
     <script type="text/javascript">
 
     var scene;
+    var groundImage;
+    var groundImage2;
     var pDragon;
     var ground;
     var timer;
 
     function Dragon(){
-      tempDragon = new Sprite(scene, "Images/BDragon.png", 60, 60);
-      tempDragon.currentTime = 0;
-      tempDragon.jumpDelay = .5;
+      tempDragon = new Sprite(scene, "Images/standv2.png", 32, 44);
+      tempDragon.falling = true;
       tempDragon.maxHorizontalSpeed = 5;
       tempDragon.jumpHeight = 10;
       tempDragon.jumpDoubleHeight = 10;
       tempDragon.mainJump = 0;
       tempDragon.secondaryJump = 0;
       tempDragon.maxNumJumps = 2;
+      tempDragon.jumpKeyPressed = false;
       tempDragon.setAngle(90);
       tempDragon.setSpeed(0);
 
@@ -45,20 +47,22 @@
               this.setDY(0);
               this.addVector(0, this.jumpHeight);
               this.mainJump = 1;
-              this.currentTime = timer.getElapsedTime();
+              this.jumpKeyPressed = true;
             } else if (this.secondaryJump < tempDragon.maxNumJumps){
-              if (timer.getElapsedTime()-this.currentTime > this.jumpDelay){
+              if (!this.jumpKeyPressed){
                 this.setDY(0);
                 this.addVector(0, this.jumpDoubleHeight);
                 this.secondaryJump += 1;
-                this.currentTime = timer.getElapsedTime();
+                this.jumpKeyPressed = true;
               }
             }
+        } else {
+          this.jumpKeyPressed = false;
         }
       } //end checkKeys
 
       tempDragon.checkIfLanded = function(){
-        if (this.y == ground){
+        if (this.y  == ground){
           this.mainJump = 0;
           this.secondaryJump = 0;
         }
@@ -66,8 +70,9 @@
       } //end checkJumps
 
       tempDragon.checkGravity = function(){
-        if (this.y > ground){
+        if (this.y >= ground){
           this.setPosition(this.x, ground);
+          //this.setPosition(this.x, 1000 - (this.height / 2) + groundImage.y - (groundImage.height / 2));
         } else {
           if (this.dy < this.jumpHeight)
             this.addVector(180, 1);
@@ -80,6 +85,13 @@
     function init(){
       timer = new Timer();
       scene = new Scene();
+      groundImage = new Sprite(scene, "Images/RedBox.png", 800, 100);
+      groundImage.setPosition(400, 550);
+      groundImage.setSpeed(0);
+      groundImage2 = new Sprite(scene, "Images/RedBox.png", 100, 10);
+      groundImage2.setPosition(0, 0);
+      groundImage2.setSpeed(0);
+
       pDragon = new Dragon();
       ground = 500;
 
@@ -89,24 +101,29 @@
 
     function update(){
       scene.clear();
-      updateScore();
+      groundImage.update();
+      groundImage2.update();
+      pDragon.update();
 
       pDragon.checkKeys();
       pDragon.checkGravity();
-      tempDragon.checkIfLanded();
-      pDragon.update();
+      pDragon.checkIfLanded();
+      updateScore();
     } //end update
 
     function updateScore(){
     //update the scoreboard
       //scoreBoard.innerHTML = "PosX: " + pDragon.x + ". PosY: " + pDragon.y + ". VelX: " + pDragon.dx + ". VelY: " + pDragon.dy;
-      scoreBoard.innerHTML = "PosY: " + pDragon.y + ". VelY: " + pDragon.dy;
+      scoreBoard.innerHTML = "PosY: " + pDragon.y + ". VelY: " + pDragon.dy + ". PosX: " + pDragon.x;
+      platFormPos.innerHTML = "PlatY: " + groundImage.y + ". PlatX: " + groundImage.x + ". PlatWidth: " + groundImage.width + ". PlatHeight: " + groundImage.height + ". PlatHeight: " + (groundImage.y - (groundImage.height / 2));
     } // end updateScore
 
     </script>
   </head>
   <body onload = "init()">
-    <div id = "scoreBoard">PosX: 0</div>
+    <div id = "scoreBoard"></div>
+    <div id = "platFormPos"></div>
+
 
   </body>
 </html>
