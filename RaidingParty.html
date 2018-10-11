@@ -10,11 +10,15 @@
 
     var scene;
     var pDragon;
-    var ground;
+    var gPlatform;
+    var platform;
     var timer;
+    var currentTime;
+    var tempTime;
 
     function Dragon(){
-      tempDragon = new Sprite(scene, "Images/BDragon.png", 60, 60);
+      tempDragon = new Sprite(scene, "Images/60x60BlueSquare.png", 60, 60);
+      tempDragon.falling = true;
       tempDragon.maxHorizontalSpeed = 5;
       tempDragon.jumpHeight = 10;
       tempDragon.jumpDoubleHeight = 10;
@@ -44,6 +48,7 @@
               this.setDY(0);
               this.addVector(0, this.jumpHeight);
               this.mainJump = false;
+              this.falling = true;
             } else if (this.secondaryJump){
               if (this.timesDJumped < this.maxNumJumps){
                 this.setDY(0);
@@ -57,31 +62,42 @@
 
       } //end checkKeys
 
-      tempDragon.checkIfLanded = function(){
-        if (this.y == ground){
-          this.mainJump = true;
-          this.secondaryJump = true;
-        }
-
-      } //end checkJumps
-
       tempDragon.checkGravity = function(){
-        if (this.y > ground){
-          this.setPosition(this.x, ground);
-        } else {
-          if (this.dy < this.jumpHeight)
-            this.addVector(180, 1);
-        }
+        if (this.falling){
+          this.addVector(180, 1);
+          if(checkIfLanded(this)){
+            this.mainJump = true;
+            this.secondaryJump = true;
+            //this.setPosition(this.x, this.y - this.dy);
+            this.setPosition(this.x, (gPlatform.y - (gPlatform.height/2)) - (this.height/2) - 1);
+            this.setSpeed(0);
+            this.falling = false;
+          } //end if
+        } //end if
       } //end checkGravity
 
       return tempDragon;
     } //end Dragon class
 
+    function checkIfLanded(player){
+      if(player.collidesWith(gPlatform)){
+      //if ((player.y + (player.height/2)) >= (gPlatform.y - (gPlatform.height/2))){
+        return true;
+      } else {
+        return false;
+      } //end if
+    } //end checkIfLanded
+
     function init(){
       timer = new Timer();
       scene = new Scene();
       pDragon = new Dragon();
-      ground = 500;
+      platform = new Sprite(scene, "Images/800x20RedPlatform.png", 20, 20);
+      platform.setSpeed(0);
+      platform.setPosition(200,200);
+      gPlatform = new Sprite(scene, "Images/800x20RedPlatform.png", 800, 20);
+      gPlatform.setSpeed(0);
+      gPlatform.setPosition(400,500);
 
       scene.start();
     } //end init
@@ -89,9 +105,16 @@
     function update(){
       scene.clear();
 
+      gPlatform.update();
+      platform.update();
+
       pDragon.checkKeys();
-      pDragon.checkGravity();
-      pDragon.checkIfLanded();
+      //tempTime = timer.getElapsedTime();
+      //if((tempTime - currentTime) > 1){
+        pDragon.checkGravity();
+        //currentTime = timer.getElapsedTime();
+    //  }
+      //pDragon.checkIfLanded();
       pDragon.update();
 
       updateStatus();
