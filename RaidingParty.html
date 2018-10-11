@@ -15,13 +15,12 @@
 
     function Dragon(){
       tempDragon = new Sprite(scene, "Images/BDragon.png", 60, 60);
-      tempDragon.currentTime = 0;
-      tempDragon.jumpDelay = .5;
       tempDragon.maxHorizontalSpeed = 5;
       tempDragon.jumpHeight = 10;
       tempDragon.jumpDoubleHeight = 10;
-      tempDragon.mainJump = 0;
-      tempDragon.secondaryJump = 0;
+      tempDragon.mainJump = true;
+      tempDragon.secondaryJump = true;
+      tempDragon.timesDJumped = 0;
       tempDragon.maxNumJumps = 2;
       tempDragon.setAngle(90);
       tempDragon.setSpeed(0);
@@ -41,26 +40,27 @@
           this.setDX(0);
         }
         if (keysDown[K_UP]){
-            if (this.mainJump == 0){
+            if (this.mainJump){
               this.setDY(0);
               this.addVector(0, this.jumpHeight);
-              this.mainJump = 1;
-              this.currentTime = timer.getElapsedTime();
-            } else if (this.secondaryJump < tempDragon.maxNumJumps){
-              if (timer.getElapsedTime()-this.currentTime > this.jumpDelay){
+              this.mainJump = false;
+            } else if (this.secondaryJump){
+              if (this.timesDJumped < this.maxNumJumps){
                 this.setDY(0);
                 this.addVector(0, this.jumpDoubleHeight);
-                this.secondaryJump += 1;
-                this.currentTime = timer.getElapsedTime();
-              }
-            }
-        }
+              } else {
+                this.secondaryJump = false;
+              } //end if
+              this.timesDJumped += 1;
+            } //end if
+        } //end if
+
       } //end checkKeys
 
       tempDragon.checkIfLanded = function(){
         if (this.y == ground){
-          this.mainJump = 0;
-          this.secondaryJump = 0;
+          this.mainJump = true;
+          this.secondaryJump = true;
         }
 
       } //end checkJumps
@@ -88,24 +88,26 @@
 
     function update(){
       scene.clear();
-      updateScore();
 
       pDragon.checkKeys();
       pDragon.checkGravity();
-      tempDragon.checkIfLanded();
+      pDragon.checkIfLanded();
       pDragon.update();
+
+      updateStatus();
     } //end update
 
-    function updateScore(){
+    function updateStatus(){
     //update the scoreboard
-      //scoreBoard.innerHTML = "PosX: " + pDragon.x + ". PosY: " + pDragon.y + ". VelX: " + pDragon.dx + ". VelY: " + pDragon.dy;
-      scoreBoard.innerHTML = "PosY: " + pDragon.y + ". VelY: " + pDragon.dy;
+      playerPosVel.innerHTML = "PosX: " + pDragon.x + ". PosY: " + pDragon.y + ". VelX: " + pDragon.dx + ". VelY: " + pDragon.dy;
+      playerJump.innerHTML = "MainJump: " + pDragon.mainJump + ". DoubleJump: " + pDragon.secondaryJump + ". NumJumpLeft: " + pDragon.timesDJumped;
     } // end updateScore
 
     </script>
   </head>
   <body onload = "init()">
-    <div id = "scoreBoard">PosX: 0</div>
+    <div id = "playerPosVel">Blank</div>
+    <div id = "playerJump">Blank 2</div>
 
   </body>
 </html>
