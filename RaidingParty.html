@@ -12,6 +12,7 @@
     var pDragon;
     var gPlatform;
     var platform;
+    var platforms;
     var timer;
     var currentTime;
     var tempTime;
@@ -20,12 +21,13 @@
       tempDragon = new Sprite(scene, "Images/60x60BlueSquare.png", 60, 60);
       tempDragon.falling = true;
       tempDragon.maxHorizontalSpeed = 5;
-      tempDragon.jumpHeight = 10;
+      tempDragon.jumpHeight = 15;
       tempDragon.jumpDoubleHeight = 10;
       tempDragon.mainJump = true;
       tempDragon.secondaryJump = true;
       tempDragon.timesDJumped = 0;
       tempDragon.maxNumJumps = 2;
+      tempDragon.upKeyPressed = false;
       tempDragon.setAngle(90);
       tempDragon.setSpeed(0);
 
@@ -44,12 +46,16 @@
           this.setDX(0);
         }
         if (keysDown[K_UP]){
+          if(!this.upKeyPressed){
             if (this.mainJump){
+              this.upKeyPressed = true;
+              this.y -= 1;
               this.setDY(0);
               this.addVector(0, this.jumpHeight);
               this.mainJump = false;
               this.falling = true;
             } else if (this.secondaryJump){
+              this.upKeyPressed = true;
               if (this.timesDJumped < this.maxNumJumps){
                 this.setDY(0);
                 this.addVector(0, this.jumpDoubleHeight);
@@ -58,43 +64,101 @@
               } //end if
               this.timesDJumped += 1;
             } //end if
-        } //end if
+          }
+        } else {
+          this.upKeyPressed = false;
+          checkIfLanded();
+        }//end if
 
       } //end checkKeys
 
       tempDragon.checkGravity = function(){
         if (this.falling){
           this.addVector(180, 1);
-          if(checkIfLanded(this)){
-            this.mainJump = true;
-            this.secondaryJump = true;
+          if(this.collidesWith(gPlatform)){
+          //if(checkIfLanded(this,gPlatform)){
+            this.resetJumps();
             //this.setPosition(this.x, this.y - this.dy);
-            this.setPosition(this.x, (gPlatform.y - (gPlatform.height/2)) - (this.height/2) - 1);
-            this.setSpeed(0);
+            this.setPosition(this.x, (gPlatform.y - (gPlatform.height/2)) - (this.height/2));
+            this.setDY(0);
             this.falling = false;
           } //end if
         } //end if
       } //end checkGravity
 
+      tempDragon.resetJumps = function(){
+        this.mainJump = true;
+        this.secondaryJump = true;
+        this.timesDJumped = 0;
+      } //end resetJumps
       return tempDragon;
     } //end Dragon class
 
-    function checkIfLanded(player){
-      if(player.collidesWith(gPlatform)){
-      //if ((player.y + (player.height/2)) >= (gPlatform.y - (gPlatform.height/2))){
-        return true;
-      } else {
-        return false;
+    function Platform (width, height){
+      tempPlatform = new Sprite(scene, "Images/800x20RedPlatform.png", width, height);
+
+      tempPlatform.setSpeed(0);
+      tempPlatform.setPosition(100,100);
+
+      return tempPlatform;
+    }
+
+    function checkIfLanded(player, platform){
+      pDragon.falling = true;
+      for(i=0; i < platforms.length; i++){
+        if(pDragon.collidesWith(platforms[i])){
+          pDragon.falling = false;
+        } //end if
+      } //end for
+      /*
+      if(player.dy > 0){
+        if(player.collidesWith(platform)){
+        //if ((player.y + (player.height/2)) + player.dy >= (platform.y - (platform.height/2))){
+          //if (((player.x + (player.width/2)) + player.dx >= (platform.x - (platform.width/2)))){
+            //|| ((player.x - (player.width/2)) + player.dx <= (platform.x + (platform.width/2))
+            return true;
+          //}
+        } else {
+          return false;
+        } //end if
       } //end if
+      */
     } //end checkIfLanded
+
+    function makePlatforms(){
+      platforms = new Array(1);
+      for(i=0; i<platforms.length; i++){
+        platforms[i] = Platform(100,20);
+        platforms[i].setPosition(400*i + 300, 400);
+      } //end for
+    } //end makePlatforms
+
+    function updatePlatforms(){
+      for(i=0; i < platforms.length; i++){
+        if(pDragon.collidesWith(platforms[i])){
+        //if(checkIfLanded(pDragon,platforms[i])){
+          if(pDragon.dy >= 0){
+            pDragon.setPosition(pDragon.x, (platforms[i].y - (platforms[i].height/2)) - (pDragon.height/2));
+            pDragon.setDY(0);
+            pDragon.resetJumps();
+            pDragon.falling = false;
+          }
+        } else {
+          //pDragon.falling = true;
+        }
+        platforms[i].update();
+      } //end for
+    } //end updatePlatforms
 
     function init(){
       timer = new Timer();
       scene = new Scene();
       pDragon = new Dragon();
-      platform = new Sprite(scene, "Images/800x20RedPlatform.png", 20, 20);
+      //platformv = new Platform(20, 20);
+      platform = new Sprite(scene, "Images/800x20RedPlatform.png", 50, 4);
       platform.setSpeed(0);
-      platform.setPosition(200,200);
+      platform.setPosition(25,327);
+      makePlatforms();
       gPlatform = new Sprite(scene, "Images/800x20RedPlatform.png", 800, 20);
       gPlatform.setSpeed(0);
       gPlatform.setPosition(400,500);
@@ -107,11 +171,13 @@
 
       gPlatform.update();
       platform.update();
+      //platformv.update(20);
+      updatePlatforms();
 
       pDragon.checkKeys();
       //tempTime = timer.getElapsedTime();
       //if((tempTime - currentTime) > 1){
-        pDragon.checkGravity();
+      pDragon.checkGravity();
         //currentTime = timer.getElapsedTime();
     //  }
       //pDragon.checkIfLanded();
