@@ -42,12 +42,14 @@
           //this.setSpeed(0);
           this.setDX(0);
         }
+
         if (keysDown[K_UP]){
             if (this.mainJump == 0){
               this.setDY(0);
               this.addVector(0, this.jumpHeight);
               this.mainJump = 1;
               this.jumpKeyPressed = true;
+              //this.falling == true
             } else if (this.secondaryJump < tempDragon.maxNumJumps){
               if (!this.jumpKeyPressed){
                 this.setDY(0);
@@ -58,35 +60,52 @@
             }
         } else {
           this.jumpKeyPressed = false;
+          checkIfFalling();
         }
       } //end checkKeys
 
       tempDragon.checkIfLanded = function(){
-        if (this.y  == ground){
+        if (!this.falling){
           this.mainJump = 0;
           this.secondaryJump = 0;
         }
-
       } //end checkJumps
 
       tempDragon.checkGravity = function(){
-        if (this.y >= ground){
-          this.setPosition(this.x, ground);
-          //this.setPosition(this.x, 1000 - (this.height / 2) + groundImage.y - (groundImage.height / 2));
-        } else {
+        if (this.falling){
           if (this.dy < this.jumpHeight)
             this.addVector(180, 1);
-        }
+          } else {
+            this.setDY(0);
+          }
+          dragonBot = this.y + (this.height / 2);
+          if (dragonBot >= ground){
+            this.setPosition(this.x, ground- (this.height / 2));
+            this.falling = false;
+            //this.setDY(0);
+          }
+
       } //end checkGravity
 
       return tempDragon;
     } //end Dragon class
 
+    function checkIfFalling(){
+      pDragon.falling = true;
+      pDragonBotton = pDragon.y + (pDragon.height / 2);
+      if(pDragon.collidesWith(groundImage)){
+      //if(pDragonBotton >= ground-1){
+        pDragon.falling = false;
+        //pDragon.setDY(0);
+        //alert("Hello! I am an alert box!!");
+      }
+    } //end checkIfFalling
+
     function init(){
       timer = new Timer();
       scene = new Scene();
       groundImage = new Sprite(scene, "Images/RedBox.png", 800, 100);
-      groundImage.setPosition(400, 550);
+      groundImage.setPosition(400, 400);
       groundImage.setSpeed(0);
       groundImage2 = new Sprite(scene, "Images/RedBox.png", 100, 10);
       groundImage2.setPosition(0, 0);
@@ -108,14 +127,15 @@
       pDragon.checkKeys();
       pDragon.checkGravity();
       pDragon.checkIfLanded();
+      //pDragon.update();
       updateScore();
     } //end update
 
     function updateScore(){
     //update the scoreboard
       //scoreBoard.innerHTML = "PosX: " + pDragon.x + ". PosY: " + pDragon.y + ". VelX: " + pDragon.dx + ". VelY: " + pDragon.dy;
-      scoreBoard.innerHTML = "PosY: " + pDragon.y + ". VelY: " + pDragon.dy + ". PosX: " + pDragon.x;
-      platFormPos.innerHTML = "PlatY: " + groundImage.y + ". PlatX: " + groundImage.x + ". PlatWidth: " + groundImage.width + ". PlatHeight: " + groundImage.height + ". PlatHeight: " + (groundImage.y - (groundImage.height / 2));
+      scoreBoard.innerHTML = "PosY: " + pDragon.y + ". VelY: " + pDragon.dy + ". PosX: " + pDragon.x+ ". Width: " + pDragon.width + ". Height: " + pDragon.height;
+      platFormPos.innerHTML = "PlatY: " + groundImage.y + ". PlatX: " + groundImage.x + ". PlatWidth: " + groundImage.width + ". PlatHeight: " + groundImage.height + ". PlatTop: " + (groundImage.y - (groundImage.height / 2));
     } // end updateScore
 
     </script>
