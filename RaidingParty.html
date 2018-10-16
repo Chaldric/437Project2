@@ -12,6 +12,7 @@
     var pDragon;
     var gPlatform;
     var platform;
+    var platform2;
     var platforms;
     var timer;
     var currentTime;
@@ -27,35 +28,32 @@
       tempDragon.secondaryJump = true;
       tempDragon.timesDJumped = 0;
       tempDragon.maxNumJumps = 2;
-      tempDragon.upKeyPressed = false;
+      tempDragon.jumpKeyPressed = false;
       tempDragon.setAngle(90);
       tempDragon.setSpeed(0);
 
       tempDragon.checkKeys = function(){
         if (keysDown[K_LEFT] || keysDown[K_RIGHT]){
           if (keysDown[K_RIGHT]){
-            //this.setSpeed(this.maxHorizontalSpeed);
             this.setDX(this.maxHorizontalSpeed);
           }
           if (keysDown[K_LEFT]){
-            //this.setSpeed(-this.maxHorizontalSpeed);
             this.setDX(-this.maxHorizontalSpeed);
           }
         } else {
-          //this.setSpeed(0);
           this.setDX(0);
         }
         if (keysDown[K_UP]){
-          if(!this.upKeyPressed){
+          if(!this.jumpKeyPressed){
             if (this.mainJump){
-              this.upKeyPressed = true;
+              this.jumpKeyPressed = true;
               this.y -= 1;
               this.setDY(0);
               this.addVector(0, this.jumpHeight);
               this.mainJump = false;
               this.falling = true;
             } else if (this.secondaryJump){
-              this.upKeyPressed = true;
+              this.jumpKeyPressed = true;
               if (this.timesDJumped < this.maxNumJumps){
                 this.setDY(0);
                 this.addVector(0, this.jumpDoubleHeight);
@@ -64,10 +62,10 @@
               } //end if
               this.timesDJumped += 1;
             } //end if
-          }
+          } // end if
         } else {
-          this.upKeyPressed = false;
-          checkIfLanded();
+          this.jumpKeyPressed = false;
+          //checkIfFalling();
         }//end if
 
       } //end checkKeys
@@ -76,9 +74,7 @@
         if (this.falling){
           this.addVector(180, 1);
           if(this.collidesWith(gPlatform)){
-          //if(checkIfLanded(this,gPlatform)){
             this.resetJumps();
-            //this.setPosition(this.x, this.y - this.dy);
             this.setPosition(this.x, (gPlatform.y - (gPlatform.height/2)) - (this.height/2));
             this.setDY(0);
             this.falling = false;
@@ -104,45 +100,41 @@
     }
 
     function checkIfLanded(player, platform){
+
+    } //end checkIfLanded
+
+    function checkIfFalling(){
       pDragon.falling = true;
       for(i=0; i < platforms.length; i++){
         if(pDragon.collidesWith(platforms[i])){
-          pDragon.falling = false;
+          if((pDragon.y + (pDragon.height/2)) < (platforms[i].y + (platforms[i].height/2))){
+            pDragon.falling = false;
+          } //end if
         } //end if
       } //end for
-      /*
-      if(player.dy > 0){
-        if(player.collidesWith(platform)){
-        //if ((player.y + (player.height/2)) + player.dy >= (platform.y - (platform.height/2))){
-          //if (((player.x + (player.width/2)) + player.dx >= (platform.x - (platform.width/2)))){
-            //|| ((player.x - (player.width/2)) + player.dx <= (platform.x + (platform.width/2))
-            return true;
-          //}
-        } else {
-          return false;
-        } //end if
-      } //end if
-      */
-    } //end checkIfLanded
+    } //end checkIfFalling
 
     function makePlatforms(){
-      platforms = new Array(1);
+      bWidth = 200;
+      bHeight = 50;
+      platforms = new Array(3);
       for(i=0; i<platforms.length; i++){
         platforms[i] = Platform(100,20);
-        platforms[i].setPosition(400*i + 300, 400);
+        platforms[i].setPosition(100 + (bWidth * i), 450 - (bHeight * i));
       } //end for
     } //end makePlatforms
 
     function updatePlatforms(){
       for(i=0; i < platforms.length; i++){
         if(pDragon.collidesWith(platforms[i])){
-        //if(checkIfLanded(pDragon,platforms[i])){
-          if(pDragon.dy >= 0){
-            pDragon.setPosition(pDragon.x, (platforms[i].y - (platforms[i].height/2)) - (pDragon.height/2));
-            pDragon.setDY(0);
-            pDragon.resetJumps();
-            pDragon.falling = false;
-          }
+          if((pDragon.y + (pDragon.height/2)) < (platforms[i].y + (platforms[i].height/2))){
+            if(pDragon.dy > 0){
+              pDragon.setPosition(pDragon.x, (platforms[i].y - (platforms[i].height/2)) - (pDragon.height/2));
+              pDragon.setDY(0);
+              pDragon.resetJumps();
+              pDragon.falling = false;
+            } //end if
+          } //end if
         } else {
           //pDragon.falling = true;
         }
@@ -152,18 +144,27 @@
 
     function init(){
       timer = new Timer();
+
       scene = new Scene();
+
       pDragon = new Dragon();
-      //platformv = new Platform(20, 20);
+
       platform = new Sprite(scene, "Images/800x20RedPlatform.png", 50, 4);
       platform.setSpeed(0);
       platform.setPosition(25,327);
+
+      platform2 = new Sprite(scene, "Images/800x20RedPlatform.png", 400, 4);
+      platform2.setSpeed(0);
+      platform2.setPosition(300,248);
+
       makePlatforms();
+
       gPlatform = new Sprite(scene, "Images/800x20RedPlatform.png", 800, 20);
       gPlatform.setSpeed(0);
       gPlatform.setPosition(400,500);
 
       scene.start();
+      scene.setBG('black');
     } //end init
 
     function update(){
@@ -171,16 +172,14 @@
 
       gPlatform.update();
       platform.update();
-      //platformv.update(20);
+      platform2.update();
+
       updatePlatforms();
 
       pDragon.checkKeys();
-      //tempTime = timer.getElapsedTime();
-      //if((tempTime - currentTime) > 1){
+
       pDragon.checkGravity();
-        //currentTime = timer.getElapsedTime();
-    //  }
-      //pDragon.checkIfLanded();
+
       pDragon.update();
 
       updateStatus();
