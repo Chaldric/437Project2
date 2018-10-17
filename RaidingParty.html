@@ -36,11 +36,9 @@
         if (keysDown[K_LEFT] || keysDown[K_RIGHT]){
           if (keysDown[K_RIGHT]){
             this.setDX(this.maxHorizontalSpeed);
-            this.setImgAngle(90);
           }
           if (keysDown[K_LEFT]){
             this.setDX(-this.maxHorizontalSpeed);
-            this.setImgAngle(270);
           }
         } else {
           this.setDX(0);
@@ -63,14 +61,13 @@
                 this.addVector(0, this.jumpDoubleHeight);
               } else {
                 this.secondaryJump = false;
-              } //end if
+              } //end if timesDJumped < maxNumJumps
               this.timesDJumped += 1;
-            } //end if
-          } // end if
+            } //end if secondaryJump
+          } // end if jumpKeyPressed
         } else {
           this.jumpKeyPressed = false;
-          //checkIfFalling();
-        }//end if
+        }//end if keysDown[K_UP]
 
       } //end checkKeys
 
@@ -78,7 +75,7 @@
         if (this.falling){
           if (this.dy < this.jumpHeight){
             this.addVector(180, 1);
-          } // end if
+          } // end if dy < jumpHeight
           if(this.collidesWith(gPlatform)){
             this.resetJumps();
             this.setPosition(this.x, (gPlatform.y - (gPlatform.height/2)) - (this.height/2));
@@ -87,8 +84,8 @@
             this.falling = false;
           } else if (this.dy > 0){
             this.setImage("Images/fall.png");
-          }//end if
-        } //end if
+          }//end if collidesWith(gPlatform)
+        } //end if falling
       } //end checkGravity
 
       tempDragon.resetJumps = function(){
@@ -116,9 +113,9 @@
               player.setPosition(player.x, (this.y - (this.height/2)) - (player.height/2));
               player.setImage("Images/stand.png");
               player.falling = false;
-            } //end if
-          } //end if
-        } //end if
+            } //end if dy > 0
+          } //end if playerBottom < platBottom
+        } //end if collidesWith(player)
       } //end checkPlayerLanding
 
       return tempPlatform;
@@ -133,10 +130,13 @@
       for(i=0; i < platforms.length; i++){
 
         if(pDragon.collidesWith(platforms[i])){
-          if((pDragon.y + (pDragon.height/2)) < (platforms[i].y + (platforms[i].height/2))){
+          playerBottom = (pDragon.y + (pDragon.height/2));
+          platBottom = (platforms[i].y + (platforms[i].height/2))
+          if(playerBottom < platBottom){
+          //if((pDragon.y + (pDragon.height/2)) < (platforms[i].y + (platforms[i].height/2))){
             pDragon.falling = false;
-          } //end if
-        } //end if
+          } //end if playerBottom < platBottom
+        } //end if collidesWith(platforms[i])
 
       } //end for
     } //end checkIfFalling
