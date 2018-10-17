@@ -19,7 +19,7 @@
     var tempTime;
 
     function Dragon(){
-      tempDragon = new Sprite(scene, "Images/60x60BlueSquare.png", 60, 60);
+      tempDragon = new Sprite(scene, "Images/stand.png", 40, 52);
       tempDragon.falling = true;
       tempDragon.maxHorizontalSpeed = 5;
       tempDragon.jumpHeight = 15;
@@ -36,9 +36,11 @@
         if (keysDown[K_LEFT] || keysDown[K_RIGHT]){
           if (keysDown[K_RIGHT]){
             this.setDX(this.maxHorizontalSpeed);
+            this.setImgAngle(90);
           }
           if (keysDown[K_LEFT]){
             this.setDX(-this.maxHorizontalSpeed);
+            this.setImgAngle(270);
           }
         } else {
           this.setDX(0);
@@ -46,6 +48,7 @@
         if (keysDown[K_UP]){
           if(!this.jumpKeyPressed){
             if (this.mainJump){
+              this.setImage("Images/groundjump.png");
               this.jumpKeyPressed = true;
               this.y -= 1;
               this.setDY(0);
@@ -53,6 +56,7 @@
               this.mainJump = false;
               this.falling = true;
             } else if (this.secondaryJump){
+              this.setImage("Images/airjump.png");
               this.jumpKeyPressed = true;
               if (this.timesDJumped < this.maxNumJumps){
                 this.setDY(0);
@@ -72,13 +76,18 @@
 
       tempDragon.checkGravity = function(){
         if (this.falling){
-          this.addVector(180, 1);
+          if (this.dy < this.jumpHeight){
+            this.addVector(180, 1);
+          } // end if
           if(this.collidesWith(gPlatform)){
             this.resetJumps();
             this.setPosition(this.x, (gPlatform.y - (gPlatform.height/2)) - (this.height/2));
             this.setDY(0);
+            this.setImage("Images/stand.png");
             this.falling = false;
-          } //end if
+          } else if (this.dy > 0){
+            this.setImage("Images/fall.png");
+          }//end if
         } //end if
       } //end checkGravity
 
@@ -96,6 +105,22 @@
       tempPlatform.setSpeed(0);
       tempPlatform.setPosition(100,100);
 
+      tempPlatform.checkPlayerLanding = function(player){
+        if(this.collidesWith(player)){
+          playerBottom = (player.y + (player.height/2));
+          platBottom = (this.y + (this.height/2))
+          if(playerBottom < platBottom){
+            if(player.dy > 0){
+              player.setDY(0);
+              player.resetJumps();
+              player.setPosition(player.x, (this.y - (this.height/2)) - (player.height/2));
+              player.setImage("Images/stand.png");
+              player.falling = false;
+            } //end if
+          } //end if
+        } //end if
+      } //end checkPlayerLanding
+
       return tempPlatform;
     }
 
@@ -106,11 +131,13 @@
     function checkIfFalling(){
       pDragon.falling = true;
       for(i=0; i < platforms.length; i++){
+
         if(pDragon.collidesWith(platforms[i])){
           if((pDragon.y + (pDragon.height/2)) < (platforms[i].y + (platforms[i].height/2))){
             pDragon.falling = false;
           } //end if
         } //end if
+
       } //end for
     } //end checkIfFalling
 
@@ -126,18 +153,7 @@
 
     function updatePlatforms(){
       for(i=0; i < platforms.length; i++){
-        if(pDragon.collidesWith(platforms[i])){
-          if((pDragon.y + (pDragon.height/2)) < (platforms[i].y + (platforms[i].height/2))){
-            if(pDragon.dy > 0){
-              pDragon.setPosition(pDragon.x, (platforms[i].y - (platforms[i].height/2)) - (pDragon.height/2));
-              pDragon.setDY(0);
-              pDragon.resetJumps();
-              pDragon.falling = false;
-            } //end if
-          } //end if
-        } else {
-          //pDragon.falling = true;
-        }
+        platforms[i].checkPlayerLanding(pDragon);
         platforms[i].update();
       } //end for
     } //end updatePlatforms
@@ -148,14 +164,6 @@
       scene = new Scene();
 
       pDragon = new Dragon();
-
-      platform = new Sprite(scene, "Images/800x20RedPlatform.png", 50, 4);
-      platform.setSpeed(0);
-      platform.setPosition(25,327);
-
-      platform2 = new Sprite(scene, "Images/800x20RedPlatform.png", 400, 4);
-      platform2.setSpeed(0);
-      platform2.setPosition(300,248);
 
       makePlatforms();
 
@@ -171,14 +179,14 @@
       scene.clear();
 
       gPlatform.update();
-      platform.update();
-      platform2.update();
 
       updatePlatforms();
 
       pDragon.checkKeys();
 
       pDragon.checkGravity();
+
+      checkIfFalling();
 
       pDragon.update();
 
