@@ -11,15 +11,14 @@
     var scene;
     var pDragon;
     var gPlatform;
-    var platform;
-    var platform2;
+    var gitTest;
     var platforms;
     var timer;
     var currentTime;
     var tempTime;
 
     function Dragon(){
-      tempDragon = new Sprite(scene, "Images/stand.png", 40, 52);
+      tempDragon = new Sprite(scene, "Images/charImages/Rstand.png", 40, 52);
       tempDragon.falling = true;
       tempDragon.maxHorizontalSpeed = 5;
       tempDragon.jumpHeight = 15;
@@ -29,6 +28,7 @@
       tempDragon.timesDJumped = 0;
       tempDragon.maxNumJumps = 2;
       tempDragon.jumpKeyPressed = false;
+      tempDragon.facingRight = true;
       tempDragon.setAngle(90);
       tempDragon.setSpeed(0);
 
@@ -36,9 +36,11 @@
         if (keysDown[K_LEFT] || keysDown[K_RIGHT]){
           if (keysDown[K_RIGHT]){
             this.setDX(this.maxHorizontalSpeed);
+            tempDragon.facingRight = true;
           }
           if (keysDown[K_LEFT]){
             this.setDX(-this.maxHorizontalSpeed);
+            tempDragon.facingRight = false;
           }
         } else {
           this.setDX(0);
@@ -46,7 +48,6 @@
         if (keysDown[K_UP]){
           if(!this.jumpKeyPressed){
             if (this.mainJump){
-              this.setImage("Images/groundjump.png");
               this.jumpKeyPressed = true;
               this.y -= 1;
               this.setDY(0);
@@ -54,7 +55,6 @@
               this.mainJump = false;
               this.falling = true;
             } else if (this.secondaryJump){
-              this.setImage("Images/airjump.png");
               this.jumpKeyPressed = true;
               if (this.timesDJumped < this.maxNumJumps){
                 this.setDY(0);
@@ -80,10 +80,8 @@
             this.resetJumps();
             this.setPosition(this.x, (gPlatform.y - (gPlatform.height/2)) - (this.height/2));
             this.setDY(0);
-            this.setImage("Images/stand.png");
             this.falling = false;
           } else if (this.dy > 0){
-            this.setImage("Images/fall.png");
           }//end if collidesWith(gPlatform)
         } //end if falling
       } //end checkGravity
@@ -93,6 +91,41 @@
         this.secondaryJump = true;
         this.timesDJumped = 0;
       } //end resetJumps
+
+      tempDragon.setSprite = function(){
+        if (!this.falling){
+          if (this.facingRight){
+            this.setImage("Images/charImages/Rstand.png");
+          } else {
+            this.setImage("Images/charImages/Lstand.png");
+          } //end if facingRight
+        } else {
+          if (this.dy > 0){
+            if (this.facingRight){
+              this.setImage("Images/charImages/Rfall.png");
+            } else {
+              this.setImage("Images/charImages/Lfall.png");
+            } //end if facingRight
+          } else {
+            if (!this.mainJump){
+              if (this.timesDJumped == 0){
+                if (this.facingRight){
+                  this.setImage("Images/charImages/Rgroundjump.png");
+                } else {
+                  this.setImage("Images/charImages/Lgroundjump.png");
+                } //end if facingRight
+              } else {
+                if (this.facingRight){
+                  this.setImage("Images/charImages/Rairjump.png");
+                } else {
+                  this.setImage("Images/charImages/Lairjump.png");
+                } //end if facingRight
+              }
+            } //end mainJump
+          } //end dy > 0
+        } //end if falling
+      }
+
       return tempDragon;
     } //end Dragon class
 
@@ -111,7 +144,11 @@
               player.setDY(0);
               player.resetJumps();
               player.setPosition(player.x, (this.y - (this.height/2)) - (player.height/2));
-              player.setImage("Images/stand.png");
+              if (player.facingRight){
+                player.setImage("Images/charImages/Rstand.png");
+              } else {
+                player.setImage("Images/charImages/Lstand.png");
+              } //end if facingRight
               player.falling = false;
             } //end if dy > 0
           } //end if playerBottom < platBottom
@@ -133,10 +170,12 @@
           playerBottom = (pDragon.y + (pDragon.height/2));
           platBottom = (platforms[i].y + (platforms[i].height/2))
           if(playerBottom < platBottom){
-          //if((pDragon.y + (pDragon.height/2)) < (platforms[i].y + (platforms[i].height/2))){
             pDragon.falling = false;
           } //end if playerBottom < platBottom
         } //end if collidesWith(platforms[i])
+        else if (pDragon.collidesWith(gPlatform)){
+          pDragon.falling = false;
+        }
 
       } //end for
     } //end checkIfFalling
@@ -171,12 +210,18 @@
       gPlatform.setSpeed(0);
       gPlatform.setPosition(400,500);
 
+      gitTest = new Sprite(scene, "Images/knightrun.gif", 108, 48);
+      gitTest.setSpeed(0);
+      gitTest.setPosition(200,200);
+
       scene.start();
       scene.setBG('black');
     } //end init
 
     function update(){
       scene.clear();
+
+      gitTest.update();
 
       gPlatform.update();
 
@@ -188,6 +233,7 @@
 
       checkIfFalling();
 
+      pDragon.setSprite();
       pDragon.update();
 
       updateStatus();
