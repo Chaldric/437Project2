@@ -11,14 +11,15 @@
     var scene;
     var pDragon;
     var gPlatform;
-    var gitTest;
+    var fireBalls;
     var platforms;
     var timer;
     var currentTime;
-    var tempTime;
+    var NUM_FIREBALLS = 3;
+    var NUM_PLATFORMS = 3;
 
     function Dragon(){
-      tempDragon = new Sprite(scene, "Images/charImages/Rstand.png", 40, 52);
+      tempDragon = new Sprite(scene, "Images/gameSprites/Rstand.png", 40, 52);
       tempDragon.falling = true;
       tempDragon.maxHorizontalSpeed = 5;
       tempDragon.jumpHeight = 15;
@@ -69,6 +70,10 @@
           this.jumpKeyPressed = false;
         }//end if keysDown[K_UP]
 
+        if (keysDown[K_SPACE] || keysDown[K_DOWN]){
+          fireBalls[0].fire();
+        }
+
       } //end checkKeys
 
       tempDragon.checkGravity = function(){
@@ -95,30 +100,30 @@
       tempDragon.setSprite = function(){
         if (!this.falling){
           if (this.facingRight){
-            this.setImage("Images/charImages/Rstand.png");
+            this.setImage("Images/gameSprites/Rstand.png");
           } else {
-            this.setImage("Images/charImages/Lstand.png");
+            this.setImage("Images/gameSprites/Lstand.png");
           } //end if facingRight
         } else {
           if (this.dy > 0){
             if (this.facingRight){
-              this.setImage("Images/charImages/Rfall.png");
+              this.setImage("Images/gameSprites/Rfall.png");
             } else {
-              this.setImage("Images/charImages/Lfall.png");
+              this.setImage("Images/gameSprites/Lfall.png");
             } //end if facingRight
           } else {
             if (!this.mainJump){
               if (this.timesDJumped == 0){
                 if (this.facingRight){
-                  this.setImage("Images/charImages/Rgroundjump.png");
+                  this.setImage("Images/gameSprites/Rgroundjump.png");
                 } else {
-                  this.setImage("Images/charImages/Lgroundjump.png");
+                  this.setImage("Images/gameSprites/Lgroundjump.png");
                 } //end if facingRight
               } else {
                 if (this.facingRight){
-                  this.setImage("Images/charImages/Rairjump.png");
+                  this.setImage("Images/gameSprites/Rairjump.png");
                 } else {
-                  this.setImage("Images/charImages/Lairjump.png");
+                  this.setImage("Images/gameSprites/Lairjump.png");
                 } //end if facingRight
               }
             } //end mainJump
@@ -129,8 +134,51 @@
       return tempDragon;
     } //end Dragon class
 
+    function fireBall (owner){
+      tempFireBall = new Sprite(scene, "Images/gameSprites/Rfireball1.png", 64, 44);
+
+      tempFireBall.owner = owner;
+      tempFireBall.setBoundAction(DIE);
+      tempFireBall.hide();
+
+      tempFireBall.fire = function(){
+          this.show();
+          if(this.owner.facingRight){
+            this.setImage("Images/gameSprites/Rfireball1.png");
+            this.setMoveAngle(90);
+          } else {
+            this.setImage("Images/gameSprites/Lfireball1.png");
+            this.setMoveAngle(270);
+          }
+          this.setSpeed(20);
+          this.setPosition(this.owner.x, this.owner.y);
+        } //end fire
+
+      return tempFireBall;
+    } //end fireBall class
+
+    function makeFireBalls(){
+        fireBalls = new Array(NUM_FIREBALLS);
+        for (i = 0; i < fireBalls.length ; i++){
+            fireBalls[i] = new fireBall(pDragon);
+        } // end for
+    } // end makeFireBalls
+
+    function updateFireBalls(){
+        for (i = 0; i < fireBalls.length ; i++){
+            fireBalls[i].update();
+        } // end for
+
+    } // end updateFireBalls
+
+    function fireFireBalls(){
+      for (i = 0; i < fireBalls.length ; i++){
+          fireBalls[i].fire();
+      } // end for
+    }
+
     function Platform (width, height){
-      tempPlatform = new Sprite(scene, "Images/800x20RedPlatform.png", width, height);
+      tempPlatform = new Sprite(scene, "Images/OtherPics/800x20RedPlatform.png", width, height);
 
       tempPlatform.setSpeed(0);
       tempPlatform.setPosition(100,100);
@@ -145,9 +193,9 @@
               player.resetJumps();
               player.setPosition(player.x, (this.y - (this.height/2)) - (player.height/2));
               if (player.facingRight){
-                player.setImage("Images/charImages/Rstand.png");
+                player.setImage("Images/gameSprites/Rstand.png");
               } else {
-                player.setImage("Images/charImages/Lstand.png");
+                player.setImage("Images/gameSprites/Lstand.png");
               } //end if facingRight
               player.falling = false;
             } //end if dy > 0
@@ -183,8 +231,8 @@
     function makePlatforms(){
       bWidth = 200;
       bHeight = 50;
-      platforms = new Array(3);
-      for(i=0; i<platforms.length; i++){
+      platforms = new Array(NUM_PLATFORMS);
+      for(i=0; i < platforms.length; i++){
         platforms[i] = Platform(100,20);
         platforms[i].setPosition(100 + (bWidth * i), 450 - (bHeight * i));
       } //end for
@@ -206,13 +254,11 @@
 
       makePlatforms();
 
-      gPlatform = new Sprite(scene, "Images/800x20RedPlatform.png", 800, 20);
+      gPlatform = new Sprite(scene, "Images/OtherPics/800x20RedPlatform.png", 800, 20);
       gPlatform.setSpeed(0);
       gPlatform.setPosition(400,500);
 
-      gitTest = new Sprite(scene, "Images/knightrun.gif", 108, 48);
-      gitTest.setSpeed(0);
-      gitTest.setPosition(200,200);
+      makeFireBalls();
 
       scene.start();
       scene.setBG('black');
@@ -220,8 +266,6 @@
 
     function update(){
       scene.clear();
-
-      gitTest.update();
 
       gPlatform.update();
 
@@ -234,6 +278,8 @@
       checkIfFalling();
 
       pDragon.setSprite();
+
+      updateFireBalls();
       pDragon.update();
 
       updateStatus();
