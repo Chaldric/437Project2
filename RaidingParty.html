@@ -15,6 +15,7 @@
     var platforms;
     var timer;
     var currentTime;
+    var soundTest;
     var NUM_FIREBALLS = 3;
     var NUM_PLATFORMS = 3;
     var numFiredFireBalls = 0;
@@ -28,8 +29,6 @@
       tempDragon.jumpKeyPressed = false;
       tempDragon.fireKeyPressed = false;
       tempDragon.facingRight = true;
-
-      //tempDragon.fireBalls = 
 
       tempDragon.maxHorizontalSpeed = 5;
       tempDragon.jumpHeight = 15;
@@ -79,7 +78,7 @@
 
         if (keysDown[K_SPACE]){
           if(!this.fireKeyPressed){
-            //fireBalls[0].fire();
+            soundTest.play();
             fireFireBalls();
             this.fireKeyPressed = true;
           }
@@ -279,10 +278,16 @@
       } //end for
     } //end updatePlatforms
 
+    buildSounds = function(){
+      soundTest = new Sound("Sound/Shoot.mp3");
+    } // end buildSounds
+
     function init(){
       timer = new Timer();
 
       scene = new Scene();
+
+      buildSounds();
 
       pDragon = new Dragon();
 
