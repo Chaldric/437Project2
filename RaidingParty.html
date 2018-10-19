@@ -12,12 +12,14 @@
     var pDragon;
     var gPlatform;
     var fireBalls;
+    var eKnights;
     var platforms;
     var timer;
     var currentTime;
     var soundTest;
     var NUM_FIREBALLS = 3;
     var NUM_PLATFORMS = 3;
+    var NUM_KNIGHTS = 3;
     var numFiredFireBalls = 0;
     var unFired;
 
@@ -146,7 +148,7 @@
       return tempDragon;
     } //end Dragon class
 
-    function fireBall (owner){
+    function FireBall (owner){
       tempFireBall = new Sprite(scene, "Images/gameSprites/Rfireball1.png", 64, 44);
 
       tempFireBall.owner = owner;
@@ -180,12 +182,12 @@
         } //end checkBounds
 
       return tempFireBall;
-    } //end fireBall class
+    } //end FireBall class
 
     function makeFireBalls(){
         fireBalls = new Array(NUM_FIREBALLS);
         for (i = 0; i < fireBalls.length ; i++){
-            fireBalls[i] = new fireBall(pDragon);
+            fireBalls[i] = new FireBall(pDragon);
         } // end for
     } // end makeFireBalls
 
@@ -278,6 +280,37 @@
       } //end for
     } //end updatePlatforms
 
+    function Knight(){
+      tempKight = new Sprite(scene,"Images/gameSprites/LKnightStand.png",64,48)
+      tempKight.setSpeed(0);
+      tempKight.setPosition(100,100);
+
+      tempKight.facePlayer = function(player){
+        if (player.x > this.x){
+          this.setImage("Images/gameSprites/RKnightStand.png");
+        } else {
+          this.setImage("Images/gameSprites/LKnightStand.png");
+        } //end if player.x > this.x
+      } //end facePlayer
+
+      return tempKight;
+    } //end Kight class
+
+    function makeKnights(){
+      eKnights = new Array(NUM_KNIGHTS);
+      for(i=0; i < eKnights.length; i++){
+        eKnights[i] = new Knight();
+        eKnights[i].setPosition(platforms[i].x, (platforms[i].y - (platforms[i].height/2)) - (eKnights[i].height/2));
+      } //end for
+    } //end makeKnights
+
+    function updateKnights(){
+      for(i=0; i < eKnights.length; i++){
+        eKnights[i].facePlayer(pDragon);
+        eKnights[i].update();
+      } //end for
+    } //end updateKnights
+
     buildSounds = function(){
       soundTest = new Sound("Sound/Shoot.mp3");
     } // end buildSounds
@@ -292,6 +325,8 @@
       pDragon = new Dragon();
 
       makePlatforms();
+
+      makeKnights();
 
       gPlatform = new Sprite(scene, "Images/gameSprites/ground.png", 800, 20);
       gPlatform.setSpeed(0);
@@ -309,6 +344,8 @@
       gPlatform.update();
 
       updatePlatforms();
+
+      updateKnights();
 
       pDragon.checkKeys();
 
