@@ -9,6 +9,7 @@
     <script type="text/javascript">
 
     var scene;
+    var playerScore;
     var pDragon;
     var gPlatform;
     var fireBalls;
@@ -20,8 +21,8 @@
     var NUM_FIREBALLS = 3;
     var NUM_PLATFORMS = 3;
     var NUM_KNIGHTS = 3;
-    var numFiredFireBalls = 0;
     var unFired;
+    var numFiredFireBalls = 0;
 
     function Dragon(){
       tempDragon = new Sprite(scene, "Images/gameSprites/Rstand.png", 40, 52);
@@ -181,6 +182,18 @@
           } //end if (this.x < 0) || this.x > scene.width
         } //end checkBounds
 
+        tempFireBall.checkEnemyCollision = function(enemy){
+          if(this.collidesWith(enemy)){
+            this.fired = false;
+            numFiredFireBalls -= 1;
+            playerScore += 1;
+            this.setPosition(this.owner.x, this.owner.y);
+            this.setSpeed(0);
+            this.hide();
+            enemy.hide();
+          } //end if collidesWith
+        } //end checkEnemyCollision
+
       return tempFireBall;
     } //end FireBall class
 
@@ -211,6 +224,14 @@
         numFiredFireBalls += 1;
       } //end if unFired.length == 0
     } //end fireFireBalls
+
+    function checkFBtoEnemyCollision(){
+      for (i = 0; i < fireBalls.length; i++){
+        for (j = 0; j < eKnights.length; j++){
+          fireBalls[i].checkEnemyCollision(eKnights[j]);
+        } //end for eKnights
+      } //end for fireBalls
+    } //end checkFBtoEnemyCollision
 
     function Platform (width, height){
       tempPlatform = new Sprite(scene, "Images/gameSprites/smallPlatform.png", width, height);
@@ -311,7 +332,7 @@
       } //end for
     } //end updateKnights
 
-    buildSounds = function(){
+    function buildSounds(){
       soundTest = new Sound("Sound/Shoot.mp3");
     } // end buildSounds
 
@@ -319,6 +340,7 @@
       timer = new Timer();
 
       scene = new Scene();
+      playerScore = 0;
 
       buildSounds();
 
@@ -355,6 +377,8 @@
 
       pDragon.setSprite();
 
+      checkFBtoEnemyCollision();
+
       updateFireBalls();
       pDragon.update();
 
@@ -363,7 +387,7 @@
 
     function updateStatus(){
     //update the scoreboard
-      playerPosVel.innerHTML = "PosX: " + pDragon.x + ". PosY: " + pDragon.y + ". VelX: " + pDragon.dx + ". VelY: " + pDragon.dy;
+      playerPosVel.innerHTML = "PosX: " + pDragon.x + ". PosY: " + pDragon.y + ". VelX: " + pDragon.dx + ". VelY: " + pDragon.dy + ". Score: " + playerScore;
       playerJump.innerHTML = "MainJump: " + pDragon.mainJump + ". DoubleJump: " + pDragon.secondaryJump + ". NumJumpLeft: " + pDragon.timesDJumped + ". FireBalls Fired: " + numFiredFireBalls + ". FireBalls Array: " + unFired;
     } // end updateScore
 
