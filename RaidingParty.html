@@ -17,7 +17,8 @@
     var platforms;
     var timer;
     var currentTime;
-    var soundTest;
+    var shootFBSound;
+    var enemyHurtSound;
     var NUM_FIREBALLS = 3;
     var NUM_PLATFORMS = 3;
     var NUM_KNIGHTS = 3;
@@ -81,7 +82,7 @@
 
         if (keysDown[K_SPACE]){
           if(!this.fireKeyPressed){
-            soundTest.play();
+            shootFBSound.play();
             fireFireBalls();
             this.fireKeyPressed = true;
           }
@@ -189,6 +190,7 @@
             playerScore += 1;
             this.setPosition(this.owner.x, this.owner.y);
             this.setSpeed(0);
+            enemyHurtSound.play();
             this.hide();
             enemy.hide();
           } //end if collidesWith
@@ -279,7 +281,7 @@
         } //end if collidesWith(platforms[i])
         else if (pDragon.collidesWith(gPlatform)){
           pDragon.falling = false;
-        }
+        } //end collidesWith(gPlatform)
 
       } //end for
     } //end checkIfFalling
@@ -333,7 +335,8 @@
     } //end updateKnights
 
     function buildSounds(){
-      soundTest = new Sound("Sound/Shoot.mp3");
+      shootFBSound = new Sound("Sound/Shoot.mp3");
+      enemyHurtSound = new Sound("Sound/Enemyhurt.mp3")
     } // end buildSounds
 
     function init(){
