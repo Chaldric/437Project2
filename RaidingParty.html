@@ -17,19 +17,26 @@
     var currentTime;
     var NUM_FIREBALLS = 3;
     var NUM_PLATFORMS = 3;
+    var numFiredFireBalls = 0;
+    var unFired;
 
     function Dragon(){
       tempDragon = new Sprite(scene, "Images/gameSprites/Rstand.png", 40, 52);
       tempDragon.falling = true;
+      tempDragon.mainJump = true;
+      tempDragon.secondaryJump = true;
+      tempDragon.jumpKeyPressed = false;
+      tempDragon.fireKeyPressed = false;
+      tempDragon.facingRight = true;
+
+      //tempDragon.fireBalls = 
+
       tempDragon.maxHorizontalSpeed = 5;
       tempDragon.jumpHeight = 15;
       tempDragon.jumpDoubleHeight = 10;
-      tempDragon.mainJump = true;
-      tempDragon.secondaryJump = true;
       tempDragon.timesDJumped = 0;
       tempDragon.maxNumJumps = 2;
-      tempDragon.jumpKeyPressed = false;
-      tempDragon.facingRight = true;
+
       tempDragon.setAngle(90);
       tempDragon.setSpeed(0);
 
@@ -70,8 +77,14 @@
           this.jumpKeyPressed = false;
         }//end if keysDown[K_UP]
 
-        if (keysDown[K_SPACE] || keysDown[K_DOWN]){
-          fireBalls[0].fire();
+        if (keysDown[K_SPACE]){
+          if(!this.fireKeyPressed){
+            //fireBalls[0].fire();
+            fireFireBalls();
+            this.fireKeyPressed = true;
+          }
+        } else {
+          this.fireKeyPressed = false;
         }
 
       } //end checkKeys
@@ -138,11 +151,14 @@
       tempFireBall = new Sprite(scene, "Images/gameSprites/Rfireball1.png", 64, 44);
 
       tempFireBall.owner = owner;
+      tempFireBall.fired = false;
       tempFireBall.setBoundAction(DIE);
+      tempFireBall.setSpeed(0);
       tempFireBall.hide();
 
       tempFireBall.fire = function(){
           this.show();
+          this.fired = true;
           if(this.owner.facingRight){
             this.setImage("Images/gameSprites/Rfireball1.png");
             this.setMoveAngle(90);
@@ -153,6 +169,16 @@
           this.setSpeed(20);
           this.setPosition(this.owner.x, this.owner.y);
         } //end fire
+
+        tempFireBall.checkBounds = function(){
+          if ((this.x < 0) || (this.x > scene.width)){
+            this.fired = false;
+            numFiredFireBalls -= 1;
+            this.setPosition(this.owner.x, this.owner.y);
+            this.setSpeed(0);
+            this.hide();
+          } //end if (this.x < 0) || this.x > scene.width
+        } //end checkBounds
 
       return tempFireBall;
     } //end fireBall class
@@ -168,14 +194,22 @@
         for (i = 0; i < fireBalls.length ; i++){
             fireBalls[i].update();
         } // end for
-
     } // end updateFireBalls
 
     function fireFireBalls(){
+
+      unFired = new Array(0);
       for (i = 0; i < fireBalls.length ; i++){
-          fireBalls[i].fire();
+        if (!fireBalls[i].fired){
+          unFired.push(i);
+        } //end if !fireBalls[i].fired
       } // end for
-    }
+
+      if (!(unFired.length == 0)) {
+        fireBalls[unFired[0]].fire();
+        numFiredFireBalls += 1;
+      } //end if unFired.length == 0
+    } //end fireFireBalls
 
     function Platform (width, height){
       tempPlatform = new Sprite(scene, "Images/gameSprites/smallPlatform.png", width, height);
@@ -288,7 +322,7 @@
     function updateStatus(){
     //update the scoreboard
       playerPosVel.innerHTML = "PosX: " + pDragon.x + ". PosY: " + pDragon.y + ". VelX: " + pDragon.dx + ". VelY: " + pDragon.dy;
-      playerJump.innerHTML = "MainJump: " + pDragon.mainJump + ". DoubleJump: " + pDragon.secondaryJump + ". NumJumpLeft: " + pDragon.timesDJumped;
+      playerJump.innerHTML = "MainJump: " + pDragon.mainJump + ". DoubleJump: " + pDragon.secondaryJump + ". NumJumpLeft: " + pDragon.timesDJumped + ". FireBalls Fired: " + numFiredFireBalls + ". FireBalls Array: " + unFired;
     } // end updateScore
 
     </script>
