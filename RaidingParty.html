@@ -62,6 +62,7 @@
       tempDragon.jumpDoubleHeight = 10;
       tempDragon.timesDJumped = 0;
       tempDragon.maxNumJumps = 2;
+      tempDragon.health = 3;
 
       tempDragon.setAngle(90);
       tempDragon.setSpeed(0);
@@ -258,6 +259,19 @@
       } //end for fireBalls
     } //end checkFBtoEnemyCollision
 
+    function checkPlayerKnightCollision(){
+      for (i = 0; i < eKnights.length; i++){
+        if (pDragon.collidesWith(eKnights[i])){
+          eKnights[i].hide();
+          pDragon.health -= 1;
+          if (pDragon.health <= 0){
+            alert('You Lose!');
+            document.location.href = "";
+          }
+        } //end if pDragon.collidesWith(eKnights[i])
+      } //end for
+    } //end checkPlayerKnightCollision
+
     function Platform (width, height){
       tempPlatform = new Sprite(scene, "Images/gameSprites/smallPlatform.png", width, height);
 
@@ -430,6 +444,7 @@
       pDragon.setSprite();
 
       checkFBtoEnemyCollision();
+      checkPlayerKnightCollision();
 
       updateFireBalls();
       pDragon.update();
@@ -439,7 +454,7 @@
 
     function updateStatus(){
     //update the scoreboard
-      playerPosVel.innerHTML = "PosX: " + pDragon.x + ". PosY: " + pDragon.y + ". VelX: " + pDragon.dx + ". VelY: " + pDragon.dy + ". Score: " + playerScore;
+      playerPosVel.innerHTML = "PosX: " + pDragon.x + ". PosY: " + pDragon.y + ". VelX: " + pDragon.dx + ". VelY: " + pDragon.dy + ". Score: " + playerScore + ". Health: " + pDragon.health;
       playerJump.innerHTML = "MainJump: " + pDragon.mainJump + ". DoubleJump: " + pDragon.secondaryJump + ". NumJumpLeft: " + pDragon.timesDJumped + ". FireBalls Fired: " + numFiredFireBalls + ". FireBalls Array: " + unFired;
     } // end updateScore
 
