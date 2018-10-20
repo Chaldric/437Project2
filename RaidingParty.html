@@ -4,6 +4,22 @@
   <head>
     <meta charset="UTF-8">
     <title>SimpleGame.html</title>
+    <style type="text/css">
+        #playerPosVel {
+            color: white;
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            z-index:100;
+        }
+        #playerJump {
+            color: white;
+            position: absolute;
+            left: 20px;
+            top: 35px;
+            z-index:100;
+          }
+    </style>
     <script type="text/javascript"
             src = "GE/simpleGame.js"></script>
     <script type="text/javascript">
@@ -17,13 +33,20 @@
     var platforms;
     var timer;
     var currentTime;
+
     var shootFBSound;
     var enemyHurtSound;
+
     var NUM_FIREBALLS = 3;
     var NUM_PLATFORMS = 3;
     var NUM_KNIGHTS = 3;
     var unFired;
     var numFiredFireBalls = 0;
+
+    var virtUpButton;
+    var virtRightButton;
+    var virtLeftButton;
+    var virtSpaceButton;
 
     function Dragon(){
       tempDragon = new Sprite(scene, "Images/gameSprites/Rstand.png", 40, 52);
@@ -44,19 +67,19 @@
       tempDragon.setSpeed(0);
 
       tempDragon.checkKeys = function(){
-        if (keysDown[K_LEFT] || keysDown[K_RIGHT]){
-          if (keysDown[K_RIGHT]){
+        if (keysDown[K_LEFT] || keysDown[K_RIGHT] || virtRightButton.isClicked() || virtLeftButton.isClicked()){
+          if (keysDown[K_RIGHT] || virtRightButton.isClicked()){
             this.setDX(this.maxHorizontalSpeed);
             tempDragon.facingRight = true;
           }
-          if (keysDown[K_LEFT]){
+          if (keysDown[K_LEFT] || virtLeftButton.isClicked()){
             this.setDX(-this.maxHorizontalSpeed);
             tempDragon.facingRight = false;
           }
         } else {
           this.setDX(0);
         }
-        if (keysDown[K_UP]){
+        if (keysDown[K_UP] || virtUpButton.isClicked()){
           if(!this.jumpKeyPressed){
             if (this.mainJump){
               this.jumpKeyPressed = true;
@@ -80,7 +103,7 @@
           this.jumpKeyPressed = false;
         }//end if keysDown[K_UP]
 
-        if (keysDown[K_SPACE]){
+        if (keysDown[K_SPACE] || virtSpaceButton.isClicked()){
           if(!this.fireKeyPressed){
             shootFBSound.play();
             fireFireBalls();
@@ -339,10 +362,36 @@
       enemyHurtSound = new Sound("Sound/Enemyhurt.mp3")
     } // end buildSounds
 
+    function makeVirtualButtons(){
+      buttonWidth = 50;
+      buttonHeight = 50;
+      sceneMidX = (scene.width / 2) - 10;
+      sceneBottom = scene.height - 10;
+      virtUpButton = new GameButton("Jump");
+      virtUpButton.setSize(buttonWidth, buttonHeight);
+      virtUpButton.setPosition(sceneMidX, sceneBottom - (buttonHeight * 1.5));
+
+      virtRightButton = new GameButton("Right");
+      virtRightButton.setSize(buttonWidth, buttonHeight);
+      virtRightButton.setPosition((sceneMidX + buttonWidth), sceneBottom - (buttonHeight / 2));
+
+      virtLeftButton = new GameButton("Left");
+      virtLeftButton.setSize(buttonWidth, buttonHeight);
+      virtLeftButton.setPosition((sceneMidX - buttonWidth), sceneBottom - (buttonHeight / 2));
+
+      virtSpaceButton = new GameButton("Fire");
+      virtSpaceButton.setSize(buttonWidth, buttonHeight);
+      virtSpaceButton.setPosition(sceneMidX, sceneBottom - (buttonHeight / 2));
+    } //end makeVirtualButtons
+
     function init(){
       timer = new Timer();
 
       scene = new Scene();
+      scene.setPos(10, 10);
+
+      makeVirtualButtons();
+
       playerScore = 0;
 
       buildSounds();
