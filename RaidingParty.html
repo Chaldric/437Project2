@@ -5,20 +5,27 @@
     <meta charset="UTF-8">
     <title>SimpleGame.html</title>
     <style type="text/css">
-        #playerPosVel {
+        #playerScored {
             color: white;
             position: absolute;
             left: 20px;
             top: 20px;
             z-index:100;
         }
-        #playerJump {
+        #playerHealth {
             color: white;
             position: absolute;
             left: 20px;
-            top: 35px;
+            top: 50px;
             z-index:100;
-          }
+        }
+        #playerFireBall {
+            color: white;
+            position: absolute;
+            left: 20px;
+            top: 80px;
+            z-index:100;
+        }
     </style>
     <script type="text/javascript"
             src = "GE/simpleGame.js"></script>
@@ -27,19 +34,25 @@
     var scene;
     var playerScore;
     var pDragon;
-    var gPlatform;
     var fireBalls;
     var eKnights;
+    var gPlatform;
     var platforms;
+
     var timer;
     var currentTime;
 
     var shootFBSound;
     var enemyHurtSound;
+    var gameSong;
+    var arrayHealth;
+    var arrayFireBalls;
 
     var NUM_FIREBALLS = 3;
     var NUM_PLATFORMS = 3;
     var NUM_KNIGHTS = 3;
+    var NUM_SCOREARRAY = 10;
+
     var unFired;
     var numFiredFireBalls = 0;
 
@@ -372,6 +385,7 @@
     } //end updateKnights
 
     function buildSounds(){
+      gameSong = new Sound("Sound/GameSong.mp3")
       shootFBSound = new Sound("Sound/Shoot.mp3");
       enemyHurtSound = new Sound("Sound/Enemyhurt.mp3")
     } // end buildSounds
@@ -396,7 +410,47 @@
       virtSpaceButton = new GameButton("Fire");
       virtSpaceButton.setSize(buttonWidth, buttonHeight);
       virtSpaceButton.setPosition(sceneMidX, sceneBottom - (buttonHeight / 2));
+
+      if(!(scene.touchable)){
+        virtUpButton.button.style.display="none";
+        virtRightButton.button.style.display="none";
+        virtLeftButton.button.style.display="none";
+        virtSpaceButton.button.style.display="none";
+      } //end if touchable
+
     } //end makeVirtualButtons
+
+    function makeArrayHealth(){
+      arrayHealth = new Array(NUM_SCOREARRAY);
+      for(i=0; i < arrayHealth.length; i++){
+        arrayHealth[i] = new Sprite(scene,"Images/gameSprites/Rstand.png",20,20);
+        arrayHealth[i].setPosition(80 + (25*i), 40);
+        arrayHealth[i].setSpeed(0);
+      } //end for
+    } //end makeArrayHealth
+
+    function updateArrayHealth(){
+      for(i=0; i < pDragon.health; i++){
+        arrayHealth[i].update();
+      } //end for
+    } //end updateKnights
+
+    function makeArrayFireBalls(){
+      arrayFireBalls = new Array(NUM_SCOREARRAY);
+      for(i=0; i < arrayFireBalls.length; i++){
+        arrayFireBalls[i] = new Sprite(scene,"Images/gameSprites/Rfireball1.png",20,20);
+        arrayFireBalls[i].setPosition(80 + (25*i), 70);
+        arrayFireBalls[i].setSpeed(0);
+      } //end for
+    } //end makeArrayFireBalls
+
+    function updateArrayFireBalls(){
+      for(i=0; i < (fireBalls.length - numFiredFireBalls); i++){
+        arrayFireBalls[i].update();
+      } //end for
+    } //end updateArrayFireBalls
+
+    //function display
 
     function init(){
       timer = new Timer();
@@ -411,14 +465,16 @@
       buildSounds();
 
       pDragon = new Dragon();
+      makeArrayHealth();
+      makeArrayFireBalls();
 
       makePlatforms();
-
-      makeKnights();
 
       gPlatform = new Sprite(scene, "Images/gameSprites/ground.png", 800, 20);
       gPlatform.setSpeed(0);
       gPlatform.setPosition(400,500);
+
+      makeKnights();
 
       makeFireBalls();
 
@@ -428,6 +484,7 @@
 
     function update(){
       scene.clear();
+      gameSong.play()
 
       gPlatform.update();
 
@@ -447,6 +504,7 @@
       checkPlayerKnightCollision();
 
       updateFireBalls();
+
       pDragon.update();
 
       updateStatus();
@@ -454,15 +512,18 @@
 
     function updateStatus(){
     //update the scoreboard
-      playerPosVel.innerHTML = "PosX: " + pDragon.x + ". PosY: " + pDragon.y + ". VelX: " + pDragon.dx + ". VelY: " + pDragon.dy + ". Score: " + playerScore + ". Health: " + pDragon.health;
-      playerJump.innerHTML = "MainJump: " + pDragon.mainJump + ". DoubleJump: " + pDragon.secondaryJump + ". NumJumpLeft: " + pDragon.timesDJumped + ". FireBalls Fired: " + numFiredFireBalls + ". FireBalls Array: " + unFired;
+      playerScored.innerHTML = "Score: " + playerScore;
+      playerHealth.innerHTML = "Health: ";
+      playerFireBall.innerHTML = "FireBalls: ";
+      updateArrayHealth();
+      updateArrayFireBalls();
     } // end updateScore
 
     </script>
   </head>
   <body onload = "init()">
-    <div id = "playerPosVel">Blank</div>
-    <div id = "playerJump">Blank 2</div>
-
+    <div id = "playerScored">Score</div>
+    <div id = "playerHealth">Health</div>
+    <div id = "playerFireBall">FireBall</div>
   </body>
 </html>
